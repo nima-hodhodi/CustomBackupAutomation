@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-csi #use yout own storageClass. if u dont have Dynamic Provisioner , you should make pv.
+  resources:
+    requests:
+      storage: 40Gi
