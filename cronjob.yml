@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-cronjob
+spec:
+  schedule: "0 2 * * *"  #every day on 2 AM . You can change it.
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: your.own.image.tag:vX
+            
+            env:
+            - name: INFLUX_LOGS_HOST
+              value: "http://influx-db2-service:8086"  
+            - name: INFLUX_DATA_HOST
+              value: "http://influx-db-service:8086"
+            - name: INFLUX_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: backupaut-secret
+                  key: INFLUX_TOKEN
+            - name: INFLUX_ORG
+              valueFrom:
+                secretKeyRef:
+                  name: backupaut-secret
+                  key: INFLUX_ORG
+            - name: MONGO_HOST
+              value: "mongo-db-service"
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: backupaut-secret
+                  key: MONGO_USER
+            - name: MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: backupaut-secret
+                  key: MONGO_PASS
+            - name: MINIO_HOST
+              value: "http://minio:9000"
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backupaut-secret
+                  key: MINIO_ACCESS_KEY
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backupaut-secret
+                  key: MINIO_SECRET_KEY
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backups
+          restartPolicy: OnFailure
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: backup-pvc
+
