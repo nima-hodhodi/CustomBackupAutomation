@@ -14,6 +14,8 @@ spec:
             image: your.own.image.tag:vX
             
             env:
+            - name RETENTION
+              value: "7"
             - name: INFLUX_LOGS_HOST
               value: "http://influx-db2-service:8086"  
             - name: INFLUX_DATA_HOST
